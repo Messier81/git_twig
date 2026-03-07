@@ -30,6 +30,7 @@ fn main() -> Result<()> {
         Commands::Status => commands::status::run(&ctx),
         Commands::Restack => commands::restack::run(&ctx),
         Commands::Sync => commands::sync::run(&ctx),
+        Commands::Submit => commands::submit::run(&ctx),
         Commands::Up => commands::nav::up(&ctx),
         Commands::Down => commands::nav::down(&ctx),
         Commands::Switch { name } => commands::nav::switch(&ctx, &name),

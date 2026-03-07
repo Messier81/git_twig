@@ -44,6 +44,10 @@ pub enum Commands {
     #[command(alias = "sy")]
     Sync,
 
+    /// Push all branches and create/update stacked PRs
+    #[command(alias = "su")]
+    Submit,
+
     /// Jump to a specific branch's worktree
     #[command(alias = "sw")]
     Switch {

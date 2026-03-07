@@ -4,4 +4,5 @@ pub mod nav;
 pub mod restack;
 pub mod shell;
 pub mod status;
+pub mod submit;
 pub mod sync;
