@@ -23,6 +23,44 @@ pub enum Commands {
         #[command(subcommand)]
         action: BranchAction,
     },
+
+    /// Show branches, their stack relationships, and worktree status
+    #[command(alias = "s")]
+    Status,
+
+    /// Move to the previous worktree in the tree
+    #[command(alias = "u")]
+    Up,
+
+    /// Move to the next worktree in the tree
+    #[command(alias = "d")]
+    Down,
+
+    /// Rebase all branches onto their parents
+    #[command(alias = "rs")]
+    Restack,
+
+    /// Pull latest trunk from remote and restack all branches
+    #[command(alias = "sy")]
+    Sync,
+
+    /// Jump to a specific branch's worktree
+    #[command(alias = "sw")]
+    Switch {
+        /// Branch name to switch to
+        name: String,
+    },
+
+    /// Manage shell integration
+    Shell {
+        #[command(subcommand)]
+        action: ShellAction,
+    },
+
+    /// List branch names (used by shell completions)
+    #[command(hide = true)]
+    #[command(name = "_branches")]
+    Branches,
 }
 
 #[derive(Subcommand)]
@@ -33,4 +71,19 @@ pub enum BranchAction {
         /// Name for the new branch
         name: String,
     },
+
+    /// Delete a branch, its worktree, and re-parent any children
+    #[command(alias = "d")]
+    Delete {
+        /// Branch name to delete
+        name: String,
+    },
+}
+
+#[derive(Subcommand)]
+pub enum ShellAction {
+    /// Install shell integration (adds gt() wrapper to your shell rc file)
+    Install,
+    /// Remove shell integration
+    Uninstall,
 }

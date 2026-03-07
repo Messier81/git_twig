@@ -7,16 +7,16 @@ use crate::ctx::Ctx;
 use crate::state::State;
 
 pub fn run(ctx: &Ctx) -> Result<()> {
-    if State::exists(&ctx.repo_root) {
+    if State::exists(&ctx.git_dir) {
         bail!(
             "already initialized ({})",
-            State::file(&ctx.repo_root).display()
+            State::file(&ctx.git_dir).display()
         );
     }
 
     let trunk = detect_trunk(&ctx.repo_root)?;
     let state = State::new(trunk.clone());
-    state.save(&ctx.repo_root)?;
+    state.save(&ctx.git_dir)?;
 
     println!(
         "{} Initialized git-twig (trunk: {})",

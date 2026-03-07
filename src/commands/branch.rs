@@ -6,7 +6,7 @@ use crate::ctx::Ctx;
 use crate::state::{Branch, State};
 
 pub fn create(ctx: &Ctx, name: &str) -> Result<()> {
-    let mut state = State::load(&ctx.repo_root)?;
+    let mut state = State::load(&ctx.git_dir)?;
 
     if state.branches.contains_key(name) {
         bail!("branch \"{}\" is already tracked by gt", name);
@@ -18,14 +18,18 @@ pub fn create(ctx: &Ctx, name: &str) -> Result<()> {
 
     let parent = current_branch(&ctx)?;
 
-    // Compute worktree path: sibling directory named {repo}.{branch}
-    let repo_dir = ctx.repo_root
-        .file_name()
-        .context("repo root has no directory name")?
-        .to_string_lossy();
-    let worktree_path = ctx.repo_root
+    // Compute worktree path: always relative to the main repo, not the current worktree
+    // git_dir is {main_repo}/.git, so its parent is the main repo root
+    let main_root = ctx.git_dir
         .parent()
-        .context("repo root has no parent directory")?
+        .context("git dir has no parent")?;
+    let repo_dir = main_root
+        .file_name()
+        .context("main repo has no directory name")?
+        .to_string_lossy();
+    let worktree_path = main_root
+        .parent()
+        .context("main repo has no parent directory")?
         .join(format!("{}.{}", repo_dir, name));
 
     let worktree_str = worktree_path.to_string_lossy().to_string();
@@ -60,7 +64,7 @@ pub fn create(ctx: &Ctx, name: &str) -> Result<()> {
             worktree: worktree_str.clone(),
         },
     );
-    state.save(&ctx.repo_root)?;
+    state.save(&ctx.git_dir)?;
 
     println!(
         "{} Created branch \"{}\" (parent: {})",
@@ -72,6 +76,70 @@ pub fn create(ctx: &Ctx, name: &str) -> Result<()> {
         "  Worktree: {}",
         worktree_str.dimmed()
     );
+
+    Ok(())
+}
+
+pub fn delete(ctx: &Ctx, name: &str) -> Result<()> {
+    let mut state = State::load(&ctx.git_dir)?;
+
+    if name == state.trunk {
+        bail!("cannot delete trunk branch \"{}\"", name);
+    }
+
+    if !state.branches.contains_key(name) {
+        bail!("branch \"{}\" is not tracked by gt", name);
+    }
+
+    let parent = state.branches[name].parent.clone();
+    let worktree = state.branches[name].worktree.clone();
+
+    // Re-parent children to the deleted branch's parent
+    let children: Vec<String> = state
+        .branches
+        .iter()
+        .filter(|(_, b)| b.parent == name)
+        .map(|(n, _)| n.clone())
+        .collect();
+
+    for child in &children {
+        state.branches.get_mut(child).unwrap().parent = parent.clone();
+    }
+
+    // Remove the worktree first (so the branch is no longer checked out)
+    let output = Command::new("git")
+        .args(["worktree", "remove", &worktree, "--force"])
+        .current_dir(&ctx.repo_root)
+        .output()
+        .context("failed to run git worktree remove")?;
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        eprintln!("warning: git worktree remove: {}", stderr.trim());
+    }
+
+    // Delete the git branch
+    let output = Command::new("git")
+        .args(["branch", "-D", name])
+        .current_dir(&ctx.repo_root)
+        .output()
+        .context("failed to run git branch -D")?;
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        eprintln!("warning: git branch -D: {}", stderr.trim());
+    }
+
+    // Remove from state
+    state.branches.remove(name);
+    state.save(&ctx.git_dir)?;
+
+    println!("✓ Deleted branch \"{}\"", name);
+    if !children.is_empty() {
+        println!("  Re-parented {} branch{} to \"{}\"",
+            children.len(),
+            if children.len() == 1 { "" } else { "es" },
+            parent,
+        );
+    }
 
     Ok(())
 }

@@ -24,22 +24,22 @@ impl State {
         }
     }
 
-    /// Returns the path to .git/gt/ for a given repo root
-    pub fn dir(repo_root: &Path) -> PathBuf {
-        repo_root.join(".git").join("gt")
+    /// Returns the path to {git_dir}/gt/
+    pub fn dir(git_dir: &Path) -> PathBuf {
+        git_dir.join("gt")
     }
 
-    /// Returns the path to .git/gt/state.json
-    pub fn file(repo_root: &Path) -> PathBuf {
-        Self::dir(repo_root).join("state.json")
+    /// Returns the path to {git_dir}/gt/state.json
+    pub fn file(git_dir: &Path) -> PathBuf {
+        Self::dir(git_dir).join("state.json")
     }
 
-    pub fn exists(repo_root: &Path) -> bool {
-        Self::file(repo_root).exists()
+    pub fn exists(git_dir: &Path) -> bool {
+        Self::file(git_dir).exists()
     }
 
-    pub fn load(repo_root: &Path) -> Result<Self> {
-        let path = Self::file(repo_root);
+    pub fn load(git_dir: &Path) -> Result<Self> {
+        let path = Self::file(git_dir);
         let contents = fs::read_to_string(&path)
             .with_context(|| format!("failed to read {}", path.display()))?;
         let state: Self = serde_json::from_str(&contents)
@@ -47,12 +47,12 @@ impl State {
         Ok(state)
     }
 
-    pub fn save(&self, repo_root: &Path) -> Result<()> {
-        let dir = Self::dir(repo_root);
+    pub fn save(&self, git_dir: &Path) -> Result<()> {
+        let dir = Self::dir(git_dir);
         fs::create_dir_all(&dir)
             .with_context(|| format!("failed to create {}", dir.display()))?;
 
-        let path = Self::file(repo_root);
+        let path = Self::file(git_dir);
         let json = serde_json::to_string_pretty(self)
             .context("failed to serialize state")?;
         fs::write(&path, json)
