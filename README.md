@@ -54,6 +54,7 @@ gt sw feat-auth             # jump directly to a branch (tab completion works)
 
 gt rs                       # restack: rebase all branches onto their parents
 gt sy                       # sync: pull latest trunk + restack
+gt su                       # submit: push all branches + create/update stacked PRs
 
 gt b d feat-auth-ui         # delete branch + worktree (with confirmation)
 ```
@@ -71,6 +72,7 @@ gt b d feat-auth-ui         # delete branch + worktree (with confirmation)
 | `gt switch <name>` | `gt sw` | Jump to a specific branch's worktree |
 | `gt restack` | `gt rs` | Rebase all branches onto their parents |
 | `gt sync` | `gt sy` | Pull latest trunk from remote and restack |
+| `gt submit` | `gt su` | Push all branches and create/update stacked PRs |
 | `gt shell install` | | Install shell integration (zsh/bash) |
 | `gt shell uninstall` | | Remove shell integration |
 
@@ -92,6 +94,18 @@ All worktrees are flat sibling directories on disk:
 ~/project.feat-auth-ui/      ← feat-auth-ui
 ~/project.feat-db/           ← feat-db
 ```
+
+## Stacked PRs
+
+`gt su` pushes every tracked branch and creates a PR for each one, with the base set to its parent branch. This gives you a chain of small, incremental PRs instead of one massive diff:
+
+```
+PR #1: feat-auth → main           (just the auth service)
+PR #2: feat-auth-ui → feat-auth   (just the login page, diff only shows UI code)
+PR #3: feat-db → main             (just the database layer)
+```
+
+If PRs already exist, `gt su` updates their base branch and pushes new commits. Requires [GitHub CLI](https://cli.github.com) (`gh`).
 
 ## Shell integration
 
