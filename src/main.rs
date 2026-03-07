@@ -25,7 +25,7 @@ fn main() -> Result<()> {
         Commands::Init => commands::init::run(&ctx),
         Commands::Branch { action } => match action {
             BranchAction::Create { name } => commands::branch::create(&ctx, &name),
-            BranchAction::Delete { name } => commands::branch::delete(&ctx, &name),
+            BranchAction::Delete { name, force } => commands::branch::delete(&ctx, &name, force),
         },
         Commands::Status => commands::status::run(&ctx),
         Commands::Restack => commands::restack::run(&ctx),

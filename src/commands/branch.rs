@@ -80,7 +80,7 @@ pub fn create(ctx: &Ctx, name: &str) -> Result<()> {
     Ok(())
 }
 
-pub fn delete(ctx: &Ctx, name: &str) -> Result<()> {
+pub fn delete(ctx: &Ctx, name: &str, force: bool) -> Result<()> {
     let mut state = State::load(&ctx.git_dir)?;
 
     if name == state.trunk {
@@ -94,13 +94,31 @@ pub fn delete(ctx: &Ctx, name: &str) -> Result<()> {
     let parent = state.branches[name].parent.clone();
     let worktree = state.branches[name].worktree.clone();
 
-    // Re-parent children to the deleted branch's parent
     let children: Vec<String> = state
         .branches
         .iter()
         .filter(|(_, b)| b.parent == name)
         .map(|(n, _)| n.clone())
         .collect();
+
+    if !force {
+    eprint!("Delete \"{}\" and remove {}?", name, worktree);
+    if !children.is_empty() {
+        eprint!(" ({} child branch{} will be re-parented to \"{}\")",
+            children.len(),
+            if children.len() == 1 { "" } else { "es" },
+            parent,
+        );
+    }
+    eprint!(" [y/N] ");
+    use std::io::{self, Read as _};
+    let mut buf = [0u8; 1];
+    io::stdin().read_exact(&mut buf).unwrap_or_default();
+    if buf[0] != b'y' && buf[0] != b'Y' {
+        println!("Cancelled.");
+        return Ok(());
+    }
+    }
 
     for child in &children {
         state.branches.get_mut(child).unwrap().parent = parent.clone();

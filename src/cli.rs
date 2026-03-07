@@ -77,6 +77,10 @@ pub enum BranchAction {
     Delete {
         /// Branch name to delete
         name: String,
+
+        /// Skip confirmation prompt
+        #[arg(short, long)]
+        force: bool,
     },
 }
 
