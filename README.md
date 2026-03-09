@@ -52,11 +52,13 @@ gt d                        # move to next worktree
 gt u                        # move to previous worktree
 gt sw feat-auth             # jump directly to a branch (tab completion works)
 
+gt lg                       # log: show commits unique to this branch
 gt rs                       # restack: rebase all branches onto their parents
 gt sy                       # sync: pull latest trunk + restack
 gt su                       # submit: push all branches + create/update stacked PRs
 
 gt b d feat-auth-ui         # delete branch + worktree (with confirmation)
+gt b d feat-auth-ui -f      # skip confirmation
 ```
 
 ## Commands
@@ -70,6 +72,7 @@ gt b d feat-auth-ui         # delete branch + worktree (with confirmation)
 | `gt up` | `gt u` | Move to the previous worktree (depth-first order) |
 | `gt down` | `gt d` | Move to the next worktree (depth-first order) |
 | `gt switch <name>` | `gt sw` | Jump to a specific branch's worktree |
+| `gt log` | `gt lg` | Show commits unique to the current branch |
 | `gt restack` | `gt rs` | Rebase all branches onto their parents |
 | `gt sync` | `gt sy` | Pull latest trunk from remote and restack |
 | `gt submit` | `gt su` | Push all branches and create/update stacked PRs |
