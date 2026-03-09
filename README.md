@@ -103,12 +103,22 @@ All worktrees are flat sibling directories on disk:
 `gt su` pushes every tracked branch and creates a PR for each one, with the base set to its parent branch. This gives you a chain of small, incremental PRs instead of one massive diff:
 
 ```
-PR #1: feat-auth → main           (just the auth service)
-PR #2: feat-auth-ui → feat-auth   (just the login page, diff only shows UI code)
-PR #3: feat-db → main             (just the database layer)
+PR #3: add-user-auth → main              (just the auth service)
+PR #4: add-login-page → add-user-auth    (just the login page)
+PR #5: add-oauth-providers → add-user-auth (just the OAuth config)
+PR #6: setup-database → main             (just the database layer)
 ```
 
-If PRs already exist, `gt su` updates their base branch and pushes new commits. Requires [GitHub CLI](https://cli.github.com) (`gh`).
+Each PR gets a comment showing its place in the stack:
+
+> This change is part of the following stack:
+>
+> - **#3** — add-user-auth
+>   - **#4** — **add-login-page** ◀
+>
+> <sub>Change managed by **git-twig**.</sub>
+
+If PRs already exist, `gt su` updates their base branch, pushes new commits, and refreshes the stack comment. Requires [GitHub CLI](https://cli.github.com) (`gh`).
 
 ## Shell integration
 
