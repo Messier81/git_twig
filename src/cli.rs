@@ -28,6 +28,10 @@ pub enum Commands {
     #[command(alias = "s")]
     Status,
 
+    /// Show commits unique to the current branch (since parent)
+    #[command(alias = "lg")]
+    Log,
+
     /// Move to the previous worktree in the tree
     #[command(alias = "u")]
     Up,

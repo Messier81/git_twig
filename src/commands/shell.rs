@@ -31,7 +31,7 @@ _gt() {
     case "$CURRENT" in
         2)
             local -a subcmds
-            subcmds=(init branch status up down restack sync submit switch shell)
+            subcmds=(init branch status log up down restack sync submit switch shell)
             compadd -a subcmds
             ;;
         3)

@@ -28,6 +28,7 @@ fn main() -> Result<()> {
             BranchAction::Delete { name, force } => commands::branch::delete(&ctx, &name, force),
         },
         Commands::Status => commands::status::run(&ctx),
+        Commands::Log => commands::log::run(&ctx),
         Commands::Restack => commands::restack::run(&ctx),
         Commands::Sync => commands::sync::run(&ctx),
         Commands::Submit => commands::submit::run(&ctx),

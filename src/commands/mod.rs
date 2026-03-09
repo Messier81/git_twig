@@ -1,5 +1,6 @@
 pub mod branch;
 pub mod init;
+pub mod log;
 pub mod nav;
 pub mod restack;
 pub mod shell;
