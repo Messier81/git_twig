@@ -9,7 +9,7 @@ use crate::state::State;
 const STACK_MARKER_START: &str = "<!-- gt:stack -->";
 const STACK_MARKER_END: &str = "<!-- /gt:stack -->";
 
-pub fn run(ctx: &Ctx) -> Result<()> {
+pub fn run(ctx: &Ctx, names: &[String]) -> Result<()> {
     if !has_gh() {
         bail!("GitHub CLI (gh) is not installed. Install it: https://cli.github.com");
     }
@@ -25,9 +25,24 @@ pub fn run(ctx: &Ctx) -> Result<()> {
         .parent()
         .context("git dir has no parent")?;
 
-    let order = topo_order(&state);
+    let all = topo_order(&state);
+    let order: Vec<String> = if names.is_empty() {
+        all
+    } else {
+        for n in names {
+            if !state.branches.contains_key(n) {
+                bail!("branch \"{}\" is not tracked by gt", n);
+            }
+        }
+        all.into_iter().filter(|n| names.contains(n)).collect()
+    };
 
-    // Phase 1: push all branches and create/find PRs, collect PR numbers
+    if order.is_empty() {
+        println!("No matching branches to submit.");
+        return Ok(());
+    }
+
+    // Phase 1: push branches and create/find PRs, collect PR numbers
     let mut pr_numbers: BTreeMap<String, String> = BTreeMap::new();
 
     for name in &order {

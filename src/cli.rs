@@ -48,9 +48,12 @@ pub enum Commands {
     #[command(alias = "sy")]
     Sync,
 
-    /// Push all branches and create/update stacked PRs
+    /// Push branches and create/update stacked PRs
     #[command(alias = "su")]
-    Submit,
+    Submit {
+        /// Specific branches to submit (default: all)
+        names: Vec<String>,
+    },
 
     /// Jump to a specific branch's worktree
     #[command(alias = "sw")]

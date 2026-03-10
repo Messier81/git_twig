@@ -56,6 +56,7 @@ gt lg                       # log: show commits unique to this branch
 gt rs                       # restack: rebase all branches onto their parents
 gt sy                       # sync: pull latest trunk + restack
 gt su                       # submit: push all branches + create/update stacked PRs
+gt su feat-auth feat-db     # submit specific branches only
 
 gt b d feat-auth-ui         # delete branch + worktree (with confirmation)
 gt b d feat-auth-ui -f      # skip confirmation
@@ -75,7 +76,7 @@ gt b d feat-auth-ui -f      # skip confirmation
 | `gt log` | `gt lg` | Show commits unique to the current branch |
 | `gt restack` | `gt rs` | Rebase all branches onto their parents |
 | `gt sync` | `gt sy` | Pull latest trunk from remote and restack |
-| `gt submit` | `gt su` | Push all branches and create/update stacked PRs |
+| `gt submit [names...]` | `gt su` | Push branches and create/update stacked PRs (all if none specified) |
 | `gt shell install` | | Install shell integration (zsh/bash) |
 | `gt shell uninstall` | | Remove shell integration |
 
