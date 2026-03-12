@@ -58,7 +58,7 @@ gt sy                       # sync: pull latest trunk + restack
 gt su                       # submit: push all branches + create/update stacked PRs
 gt su feat-auth feat-db     # submit specific branches only
 
-gt b m feat-auth-ui main    # move branch to a new parent
+gt b m feat-auth-ui main    # move branch to a new parent (rebases unique commits)
 
 gt b d feat-auth-ui         # delete branch + worktree (with confirmation)
 gt b d feat-auth-ui -f      # skip confirmation
@@ -71,7 +71,7 @@ gt b d feat-auth-ui -f      # skip confirmation
 | `gt init` | `gt i` | Initialize gt in the current repo |
 | `gt branch create <name>` | `gt b c` | Create a branch + worktree stacked on the current branch |
 | `gt branch delete <name>` | `gt b d` | Delete a branch + worktree, re-parent children |
-| `gt branch move <name> <parent>` | `gt b m` | Move a branch to a new parent |
+| `gt branch move <name> <parent>` | `gt b m` | Move a branch to a new parent (auto-rebases with `--onto`) |
 | `gt status` | `gt s` | Show branch tree with worktree paths |
 | `gt up` | `gt u` | Move to the previous worktree (depth-first order) |
 | `gt down` | `gt d` | Move to the next worktree (depth-first order) |
