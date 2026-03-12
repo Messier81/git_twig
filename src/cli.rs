@@ -93,6 +93,16 @@ pub enum BranchAction {
         #[arg(short, long)]
         force: bool,
     },
+
+    /// Move a branch to a new parent
+    #[command(alias = "m")]
+    Move {
+        /// Branch to move
+        name: String,
+
+        /// New parent branch
+        new_parent: String,
+    },
 }
 
 #[derive(Subcommand)]

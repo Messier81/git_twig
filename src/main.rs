@@ -26,6 +26,7 @@ fn main() -> Result<()> {
         Commands::Branch { action } => match action {
             BranchAction::Create { name } => commands::branch::create(&ctx, &name),
             BranchAction::Delete { name, force } => commands::branch::delete(&ctx, &name, force),
+            BranchAction::Move { name, new_parent } => commands::branch::move_branch(&ctx, &name, &new_parent),
         },
         Commands::Status => commands::status::run(&ctx),
         Commands::Log => commands::log::run(&ctx),

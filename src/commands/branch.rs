@@ -162,6 +162,43 @@ pub fn delete(ctx: &Ctx, name: &str, force: bool) -> Result<()> {
     Ok(())
 }
 
+pub fn move_branch(ctx: &Ctx, name: &str, new_parent: &str) -> Result<()> {
+    let mut state = State::load(&ctx.git_dir)?;
+
+    if name == state.trunk {
+        bail!("cannot move trunk branch");
+    }
+
+    if !state.branches.contains_key(name) {
+        bail!("branch \"{}\" is not tracked by gt", name);
+    }
+
+    if new_parent != state.trunk && !state.branches.contains_key(new_parent) {
+        bail!("parent \"{}\" is not tracked by gt", new_parent);
+    }
+
+    // Prevent cycles — new_parent can't be a descendant of name
+    let mut check = new_parent.to_string();
+    while let Some(b) = state.branches.get(&check) {
+        if b.parent == name {
+            bail!("\"{}\" is a descendant of \"{}\" — would create a cycle", new_parent, name);
+        }
+        if b.parent == state.trunk {
+            break;
+        }
+        check = b.parent.clone();
+    }
+
+    let old_parent = state.branches[name].parent.clone();
+    state.branches.get_mut(name).unwrap().parent = new_parent.to_string();
+    state.save(&ctx.git_dir)?;
+
+    println!("✓ Moved \"{}\" from \"{}\" to \"{}\"", name, old_parent, new_parent);
+    println!("  Run gt rs to rebase onto the new parent.");
+
+    Ok(())
+}
+
 fn current_branch(ctx: &Ctx) -> Result<String> {
     let output = Command::new("git")
         .args(["branch", "--show-current"])
