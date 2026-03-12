@@ -38,7 +38,7 @@ _gt() {
             case "$words[2]" in
                 switch|sw) _gt_branches ;;
                 submit|su) _gt_branches ;;
-                branch|b) compadd create delete ;;
+                branch|b) compadd create delete move ;;
                 shell) compadd install uninstall ;;
             esac
             ;;
@@ -48,6 +48,12 @@ _gt() {
             esac
             case "$words[2]:$words[3]" in
                 branch:delete|b:delete|branch:d|b:d) _gt_branches ;;
+                branch:move|b:move|branch:m|b:m) _gt_branches ;;
+            esac
+            ;;
+        5)
+            case "$words[2]:$words[3]" in
+                branch:move|b:move|branch:m|b:m) _gt_branches ;;
             esac
             ;;
         *)
