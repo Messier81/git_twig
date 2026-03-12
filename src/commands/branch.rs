@@ -190,11 +190,33 @@ pub fn move_branch(ctx: &Ctx, name: &str, new_parent: &str) -> Result<()> {
     }
 
     let old_parent = state.branches[name].parent.clone();
+    let worktree = state.branches[name].worktree.clone();
+
+    if old_parent == new_parent {
+        bail!("\"{}\" is already under \"{}\"", name, new_parent);
+    }
+
+    // Rebase --onto to carry only this branch's unique commits
+    let output = Command::new("git")
+        .args(["rebase", "--onto", new_parent, &old_parent, name])
+        .current_dir(&worktree)
+        .output()
+        .context("failed to rebase")?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        // Abort the failed rebase so the branch isn't left in a broken state
+        let _ = Command::new("git")
+            .args(["rebase", "--abort"])
+            .current_dir(&worktree)
+            .output();
+        bail!("rebase failed — branch not moved:\n{}", stderr.trim());
+    }
+
     state.branches.get_mut(name).unwrap().parent = new_parent.to_string();
     state.save(&ctx.git_dir)?;
 
     println!("✓ Moved \"{}\" from \"{}\" to \"{}\"", name, old_parent, new_parent);
-    println!("  Run gt rs to rebase onto the new parent.");
 
     Ok(())
 }
